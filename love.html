@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Narrative Image Viewer PDF</title>
+  <style>
+    /* Styles for the PDF layout */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    .page {
+      page-break-after: always;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .narrative-container {
+      max-width: 700px;
+      position: relative;
+      width: 100%;
+      height: 500px;
+      overflow: hidden;
+    }
+    .narrative-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    .narrative-image.active {
+      opacity: 1;
+    }
+    .narrative-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 24px;
+      padding: 10px;
+      background-color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      z-index: 1;
+    }
+    .narrative-button.prev {
+      left: 10px;
+    }
+    .narrative-button.next {
+      right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="narrative-container">
+      <div class="narrative-image active" style="background-image: url('https://raw.githubusercontent.com/Dires-coder/new1/main/7%20tim.png')"></div>
+      <div class="narrative-image" style="background-image: url('https://raw.githubusercontent.com/Dires-coder/new1/main/3%20tim.png')"></div>
+      <div class="narrative-image" style="background-image: url('https://raw.githubusercontent.com/Dires-coder/new1/main/4%20tim.png')"></div>
+      <div class="narrative-button prev">&#8592;</div>
+      <div class="narrative-button next">&#8594;</div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+  <script>
+    const generatePDF = () => {
+      const doc = new jsPDF();
+      const images = document.querySelectorAll(".narrative-image");
+
+      images.forEach((image, index) => {
+        const imageUrl = image.style.backgroundImage.slice(4, -1).replace(/"/g, "");
+        doc.addPage();
+        doc.addImage(imageUrl, "JPEG", 0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight());
+
+        if (index < images.length - 1) {
+          const nextPage = () => {
+            doc.setPage(index + 2);
+            doc.addPage();
+            doc.addImage(images[index + 1].style.backgroundImage.slice(4, -1).replace(/"/g, ""), "JPEG", 0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight());
+            doc.setPage(index + 1);
+          };
+
+          doc.setJavascriptAction({
+            event: "PageOpen",
+            script: nextPage,
+          });
+        }
+      });
+
+      doc.save("narrative-image-viewer.pdf");
+    };
+
+    let currentIndex = 0;
+    const images = document.querySelectorAll(".narrative-image");
+    const prevButton = document.querySelector(".narrative-button.prev");
+    const nextButton = document.querySelector(".narrative-button.next");
+
+    function showImage(index) {
+      images.forEach((image, i) => {
+        image.classList.toggle("active", i === index);
+      });
+    }
+
+    prevButton.addEventListener("click", () => {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      showImage(currentIndex);
+    });
+
+    nextButton.addEventListener("click", () => {
+      currentIndex = (currentIndex + 1) % images.length;
+      showImage(currentIndex);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        showImage(currentIndex);
+      } else if (event.key === "ArrowRight") {
+        currentIndex = (currentIndex + 1) % images.length;
+        showImage(currentIndex);
+      }
+    });
+
+    showImage(currentIndex);
+
+    // Add a button to generate the PDF
+    const generatePDFButton = document.createElement("button");
+    generatePDFButton.textContent = "Generate PDF";
+    generatePDFButton.addEventListener("click", generatePDF);
+    document.body.appendChild(generatePDFButton);
+  </script>
+</body>
+</html>
