@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Envelope Sender</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+        select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #6c757d;
+            background-color: #fff;
+            margin-bottom: 20px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+        .template {
+            display: none;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .image-list {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .image-item {
+            margin: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border 0.3s;
+            border-radius: 5px;
+        }
+        .image-item:hover {
+            border: 2px solid #007bff;
+        }
+        .selected {
+            border: 2px solid #28a745;
+        }
+        .envelope {
+            width: 100px;
+            height: 70px;
+            background-color: #fff;
+            border: 2px solid #6c757d;
+            border-radius: 5px;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .envelope:hover {
+            transform: scale(1.05);
+        }
+        .envelope:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: -20px;
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 20px solid #6c757d;
+        }
+        .send-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: none; /* Initially hidden */
+            transition: background-color 0.3s;
+        }
+        .send-button:hover {
+            background-color: #218838;
+        }
+        footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <h1>Select a Template</h1>
+    <select id="templateSelect" onchange="showTemplate()">
+        <option value="" disabled selected>Select a template</option>
+        <option value="Merry Christmas! Wishing you joy and peace this holiday season.">Merry Christmas</option>
+        <option value="Happy New Year! May your year be filled with happiness and success.">Happy New Year</option>
+        <option value="Happy Birthday! Wishing you a day filled with love and cheer.">Happy Birthday</option>
+        <option value="Congratulations! Celebrate your achievements with joy and pride.">Congratulations</option>
+        <option value="Thank You! Your kindness is greatly appreciated.">Thank You</option>
+    </select>
+    
+    <div id="templateDisplay" class="template">
+        <p id="templateMessage"></p>
+        <div id="imageList" class="image-list"></div>
+    </div>
+
+    <div class="envelope" onclick="sendMessage()"></div>
+
+    <button class="send-button" onclick="sendEnvelope()">Send Envelope</button>
+
+    <footer>
+        &copy; 2024 Digital Envelope Sender. All rights reserved.
+    </footer>
+
+    <script>
+        const templates = {
+            "Merry Christmas! Wishing you joy and peace this holiday season.": [
+                "https://via.placeholder.com/150/FF5733/FFFFFF?text=Christmas+1",
+                "https://via.placeholder.com/150/FFB733/FFFFFF?text=Christmas+2",
+                "https://via.placeholder.com/150/33FF57/FFFFFF?text=Christmas+3"
+            ],
+            "Happy New Year! May your year be filled with happiness and success.": [
+                "https://via.placeholder.com/150/33FF57/FFFFFF?text=New+Year+1",
+                "https://via.placeholder.com/150/3357FF/FFFFFF?text=New+Year+2",
+                "https://via.placeholder.com/150/FF33A1/FFFFFF?text=New+Year+3"
+            ],
+            "Happy Birthday! Wishing you a day filled with love and cheer.": [
+                "https://via.placeholder.com/150/3357FF/FFFFFF?text=Birthday+1",
+                "https://via.placeholder.com/150/FF5733/FFFFFF?text=Birthday+2",
+                "https://via.placeholder.com/150/FFD733/FFFFFF?text=Birthday+3"
+            ],
+            "Congratulations! Celebrate your achievements with joy and pride.": [
+                "https://via.placeholder.com/150/FF33A1/FFFFFF?text=Congrats+1",
+                "https://via.placeholder.com/150/FFD733/FFFFFF?text=Congrats+2",
+                "https://via.placeholder.com/150/33FF57/FFFFFF?text=Congrats+3"
+            ],
+            "Thank You! Your kindness is greatly appreciated.": [
+                "https://via.placeholder.com/150/FFD733/FFFFFF?text=Thank+You+1",
+                "https://via.placeholder.com/150/FF5733/FFFFFF?text=Thank+You+2",
+                "https://via.placeholder.com/150/33FF57/FFFFFF?text=Thank+You+3"
+            ]
+        };
+
+        let selectedImage = '';
+
+        function showTemplate() {
+            const selectElement = document.getElementById('templateSelect');
+            const selectedMessage = selectElement.value;
+            const templateDisplay = document.getElementById('templateDisplay');
+            const templateMessage = document.getElementById('templateMessage');
+            const imageList = document.getElementById('imageList');
+
+            if (selectedMessage) {
+                templateDisplay.style.display = 'block';
+                templateMessage.innerText = selectedMessage;
+
+                // Clear previous images
+                imageList.innerHTML = '';
+                templates[selectedMessage].forEach((url) => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.className = 'image-item';
+                    img.onclick = () => selectImage(img, url);
+                    imageList.appendChild(img);
+                });
+            } else {
+                templateDisplay.style.display = 'none';
+            }
+        }
+
+        function selectImage(img, url) {
+            const images = document.querySelectorAll('.image-item');
+            images.forEach(image => image.classList.remove('selected'));
+            img.classList.add('selected');
+            selectedImage = url;
+            document.querySelector('.send-button').style.display = 'block'; // Show send button
+        }
+
+        function sendMessage() {
+            if (selectedImage) {
+                alert("Envelope is closed. Click on it to send the message!");
+            } else {
+                alert("Please select an image first.");
+            }
+        }
+
+        function sendEnvelope() {
+            const selectElement = document.getElementById('templateSelect');
+            const selectedMessage = selectElement.value;
+            if (selectedMessage && selectedImage) {
+                const recipientEmail = prompt("Enter the recipient's email address:");
+                if (recipientEmail) {
+                    const mailtoLink = `mailto:${recipientEmail}?subject=Your Message&body=${encodeURIComponent(selectedMessage)}%0AImage: ${selectedImage}`;
+                    window.location.href = mailtoLink; // Open the user's email client
+                    alert(`Envelope prepared to send to ${recipientEmail}`);
+                    
+                    // Reset selections
+                    document.getElementById('templateSelect').selectedIndex = 0;
+                    document.getElementById('templateDisplay').style.display = 'none';
+                    document.querySelector('.send-button').style.display = 'none';
+                    selectedImage = '';
+                } else {
+                    alert("Please enter a valid email address.");
+                }
+            } else {
+                alert("Please select a template and an image first.");
+            }
+        }
+    </script>
+</body>
+</html>
