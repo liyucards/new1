@@ -61,8 +61,8 @@
             border: 2px solid #28a745;
         }
         .envelope {
-            width: 100px;
-            height: 70px;
+            width: 80px;
+            height: 60px;
             background-color: #fff;
             border: 2px solid #6c757d;
             border-radius: 5px;
@@ -74,17 +74,6 @@
         }
         .envelope:hover {
             transform: scale(1.05);
-        }
-        .envelope:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: -20px;
-            width: 0;
-            height: 0;
-            border-left: 50px solid transparent;
-            border-right: 50px solid transparent;
-            border-bottom: 20px solid #6c757d;
         }
         .send-button {
             margin-top: 20px;
@@ -112,11 +101,8 @@
     <h1>Select a Template</h1>
     <select id="templateSelect" onchange="showTemplate()">
         <option value="" disabled selected>Select a template</option>
-        <option value="Merry Christmas! Wishing you joy and peace this holiday season.">Merry Christmas</option>
         <option value="Happy New Year! May your year be filled with happiness and success.">Happy New Year</option>
-        <option value="Happy Birthday! Wishing you a day filled with love and cheer.">Happy Birthday</option>
-        <option value="Congratulations! Celebrate your achievements with joy and pride.">Congratulations</option>
-        <option value="Thank You! Your kindness is greatly appreciated.">Thank You</option>
+        <!-- Other templates can be added here -->
     </select>
     
     <div id="templateDisplay" class="template">
@@ -124,7 +110,7 @@
         <div id="imageList" class="image-list"></div>
     </div>
 
-    <div class="envelope" onclick="sendMessage()"></div>
+    <div class="envelope" onclick="sendEnvelope()"></div>
 
     <button class="send-button" onclick="sendEnvelope()">Send Envelope</button>
 
@@ -134,30 +120,9 @@
 
     <script>
         const templates = {
-            "Merry Christmas! Wishing you joy and peace this holiday season.": [
-                "https://via.placeholder.com/150/FF5733/FFFFFF?text=Christmas+1",
-                "https://via.placeholder.com/150/FFB733/FFFFFF?text=Christmas+2",
-                "https://via.placeholder.com/150/33FF57/FFFFFF?text=Christmas+3"
-            ],
             "Happy New Year! May your year be filled with happiness and success.": [
-                "https://via.placeholder.com/150/33FF57/FFFFFF?text=New+Year+1",
-                "https://via.placeholder.com/150/3357FF/FFFFFF?text=New+Year+2",
-                "https://via.placeholder.com/150/FF33A1/FFFFFF?text=New+Year+3"
-            ],
-            "Happy Birthday! Wishing you a day filled with love and cheer.": [
-                "https://via.placeholder.com/150/3357FF/FFFFFF?text=Birthday+1",
-                "https://via.placeholder.com/150/FF5733/FFFFFF?text=Birthday+2",
-                "https://via.placeholder.com/150/FFD733/FFFFFF?text=Birthday+3"
-            ],
-            "Congratulations! Celebrate your achievements with joy and pride.": [
-                "https://via.placeholder.com/150/FF33A1/FFFFFF?text=Congrats+1",
-                "https://via.placeholder.com/150/FFD733/FFFFFF?text=Congrats+2",
-                "https://via.placeholder.com/150/33FF57/FFFFFF?text=Congrats+3"
-            ],
-            "Thank You! Your kindness is greatly appreciated.": [
-                "https://via.placeholder.com/150/FFD733/FFFFFF?text=Thank+You+1",
-                "https://via.placeholder.com/150/FF5733/FFFFFF?text=Thank+You+2",
-                "https://via.placeholder.com/150/33FF57/FFFFFF?text=Thank+You+3"
+                "https://via.placeholder.com/150/FF33A1/FFFFFF?text=Happy+New+Year"
+                // Add more images if needed
             ]
         };
 
@@ -196,21 +161,26 @@
             document.querySelector('.send-button').style.display = 'block'; // Show send button
         }
 
-        function sendMessage() {
-            if (selectedImage) {
-                alert("Envelope is closed. Click on it to send the message!");
-            } else {
-                alert("Please select an image first.");
-            }
-        }
-
         function sendEnvelope() {
             const selectElement = document.getElementById('templateSelect');
             const selectedMessage = selectElement.value;
             if (selectedMessage && selectedImage) {
                 const recipientEmail = prompt("Enter the recipient's email address:");
                 if (recipientEmail) {
-                    const mailtoLink = `mailto:${recipientEmail}?subject=Your Message&body=${encodeURIComponent(selectedMessage)}%0AImage: ${selectedImage}`;
+                    const envelopeImage = "https://via.placeholder.com/80x60/6c757d/FFFFFF?text=Envelope"; // Envelope image
+                    const body = `
+                        <html>
+                            <body>
+                                <h2>You have received a letter!</h2>
+                                <a href="${selectedImage}" target="_blank">
+                                    <img src="${envelopeImage}" alt="Envelope" style="width:80px; height:60px;"/>
+                                </a>
+                                <p style="display:none;">${selectedMessage}</p>
+                                <p>Click the envelope to view your message!</p>
+                            </body>
+                        </html>
+                    `;
+                    const mailtoLink = `mailto:${recipientEmail}?subject=You've Got Mail!&body=${encodeURIComponent(body)}`;
                     window.location.href = mailtoLink; // Open the user's email client
                     alert(`Envelope prepared to send to ${recipientEmail}`);
                     
