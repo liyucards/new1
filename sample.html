@@ -56,6 +56,14 @@
             background-color: #c13532; /* Darker shade for hover */
             transform: scale(1.05);
         }
+        h3 {
+            margin-top: 0;
+        }
+        .divider {
+            border-top: 2px solid #ddd;
+            margin: 20px 0;
+            opacity: 0.5;
+        }
         .notification {
             margin-top: 10px;
             font-size: 14px;
@@ -68,15 +76,6 @@
 </head>
 <body>
     <div class="container">
-        <form id="emailForm" onsubmit="sendEmail(event)">
-            <p>Please copy <span class="copy-email" onclick="copyEmail()">“adugnawafework2011@gmail.com”</span> and add this to the compose box:</p>
-            <input type="email" id="email" value="adugnawafework2011@gmail.com" required>
-            <input type="text" id="subject" placeholder="Enter email subject" required>
-            <textarea id="body" placeholder="Enter email body" rows="4"></textarea>
-            <button type="submit">Compose Email</button>
-            <p class="notification" id="emailNotification"></p>
-        </form>
-        <hr>
         <form id="contactForm" onsubmit="sendContact(event)">
             <h3>Contact Form</h3>
             <input type="text" id="fullName" placeholder="Full Name" required>
@@ -84,6 +83,15 @@
             <input type="email" id="contactEmail" placeholder="Email Address" required>
             <button type="submit">Submit</button>
             <p class="notification" id="contactNotification"></p>
+        </form>
+        <div class="divider"></div>
+        <form id="emailForm" onsubmit="sendEmail(event)">
+            <p>Please copy <span class="copy-email" onclick="copyEmail()">“adugnawafework2011@gmail.com”</span> and add this to the compose box:</p>
+            <input type="email" id="email" value="adugnawafework2011@gmail.com" required>
+            <input type="text" id="subject" placeholder="Enter email subject" required>
+            <textarea id="body" placeholder="Enter email body" rows="4"></textarea>
+            <button type="submit">Compose Email</button>
+            <p class="notification" id="emailNotification"></p>
         </form>
     </div>
 
@@ -118,15 +126,15 @@
 
             const message = `Full Name: ${fullName}\nPhone Number: ${phoneNumber}\nEmail: ${contactEmail}`;
             const token = 'YOUR_TELEGRAM_BOT_TOKEN'; // Replace with your bot's token
-            const chatId = 'YOUR_CHAT_ID'; // Replace with your chat ID
-            const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+            const username = 'yabtse1'; // Replace with your Telegram username without @
+            const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=@${username}&text=${encodeURIComponent(message)}`;
 
             try {
                 const response = await fetch(url);
                 if (response.ok) {
                     showNotification('contactNotification', "Contact information sent successfully!");
                 } else {
-                    showNotification('contactNotification', "Failed to send contact information.", true);
+                    showNotification('contactNotification', "Failed to send contact information. Please check the bot permissions.", true);
                 }
             } catch (error) {
                 showNotification('contactNotification', "Error sending message.", true);
