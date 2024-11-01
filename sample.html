@@ -118,27 +118,17 @@
             showNotification('emailNotification', "Email composed successfully!");
         }
 
-        async function sendContact(event) {
+        function sendContact(event) {
             event.preventDefault();
             const fullName = document.getElementById('fullName').value;
             const phoneNumber = document.getElementById('phoneNumber').value;
             const contactEmail = document.getElementById('contactEmail').value;
 
             const message = `Full Name: ${fullName}\nPhone Number: ${phoneNumber}\nEmail: ${contactEmail}`;
-            const token = 'YOUR_TELEGRAM_BOT_TOKEN'; // Replace with your bot's token
-            const username = 'yabtse1'; // Replace with your Telegram username without @
-            const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=@${username}&text=${encodeURIComponent(message)}`;
+            const telegramLink = `https://t.me/yabtse1?text=${encodeURIComponent(message)}`;
+            window.open(telegramLink, '_blank'); // Opens the Telegram link in a new tab
 
-            try {
-                const response = await fetch(url);
-                if (response.ok) {
-                    showNotification('contactNotification', "Contact information sent successfully!");
-                } else {
-                    showNotification('contactNotification', "Failed to send contact information. Please check the bot permissions.", true);
-                }
-            } catch (error) {
-                showNotification('contactNotification', "Error sending message.", true);
-            }
+            showNotification('contactNotification', "You will be redirected to Telegram!");
         }
 
         function showNotification(notificationId, message, isError = false) {
